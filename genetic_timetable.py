@@ -1,0 +1,163 @@
+import random
+
+# Define the available time slots
+time_slots = [
+    ["8:00-9:00", "8:00-10:00"],
+    ["9:00-10:00", "9:00-11:00"],
+    ["10:00-11:00", "10:00-12:00"],
+    ["11:00-12:00", "11:00-1:00"],
+    ["12:00-1:00", "12:00-2:00"],
+    ["2:00-3:00", "2:00-4:00"],
+    ["3:00-4:00", "3:00-5:00"]
+]
+
+# Define the courses, venues, and durations
+courses = ["Math", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology"]
+venues = ["Room 1", "Room 2", "Room 3", "Room 4"]
+durations = [1, 2, 1, 2, 1, 2, 1, 2]  # in hours
+days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+
+# Define the population size and mutation rate
+POP_SIZE = 100
+MUT_RATE = 0.1
+
+# Define the fitness function
+def fitness(timetable):
+    day_courses = {day: 0 for day in days}
+    for course in timetable:
+        day_courses[course[3]] += 1  # increment course count for the day
+    return 1 / (max(day_courses.values()) - min(day_courses.values()) + 1)  # higher fitness for more even distribution
+
+# Define the genetic algorithm
+def genetic_algorithm():
+    # Initialize population
+    population = []
+    for _ in range(POP_SIZE):
+        timetable = []
+        for i in range(len(courses)):
+            course = courses[i]
+            venue = random.choice(venues)
+            day = random.choice(days)
+            duration = durations[i]
+            time_slot_index = i % len(time_slots)  # reuse time slots if necessary
+            time_slot_options = time_slots[time_slot_index]
+            time_slot = random.choice(time_slot_options)
+            if duration == 2:
+                time_slot = time_slot_options[1]  # select the 2-hour time slot
+            timetable.append([course, venue, time_slot, day, duration])
+        population.append(timetable)
+
+    # Evolve population
+    for _ in range(100):  # generations
+        # Evaluate fitness
+        fitnesses = [fitness(timetable) for timetable in population]
+        # Select parents
+        parents = random.choices(population, weights=fitnesses, k=POP_SIZE)
+        # Crossover
+        offspring = []
+        for _ in range(POP_SIZE):
+            parent1, parent2 = random.sample(parents, 2)
+            child = parent1[:2] + parent2[2:]  # crossover
+            offspring.append(child)
+        # Mutate
+        for timetable in offspring:
+            if random.random() < MUT_RATE:
+                i = random.randint(0, len(timetable)-1)
+                timetable[i][3] = random.choice(days)  # mutate day
+        # Replace population
+        population = offspring
+
+    # Return the fittest timetable
+    return max(population, key=fitness)
+
+# Run the genetic algorithm
+timetable = genetic_algorithm()
+
+# Print the generated timetable
+print("Timetable:")
+for entry in timetable:
+    print(f"Course: {entry[0]}, Venue: {entry[1]}, Time: {entry[2]}, Day: {entry[3]}, Duration: {entry[4]} hours")
+
+
+
+# import random
+
+# # Define the available time slots
+# time_slots = [
+#     ["8:00-9:00", "8:00-10:00"],
+#     ["9:00-10:00", "9:00-11:00"],
+#     ["10:00-11:00", "10:00-12:00"],
+#     ["11:00-12:00", "11:00-1:00"],
+#     ["12:00-1:00", "12:00-2:00"],
+#     ["2:00-3:00", "2:00-4:00"],
+#     ["3:00-4:00", "3:00-5:00"]
+# ]
+
+# # Define the courses, venues, and durations
+# courses = ["Math", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology"]
+# venues = ["Room 1", "Room 2", "Room 3", "Room 4"]
+# durations = [1, 2, 1, 2, 1, 2, 1, 2]  # in hours
+# days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+
+# # Define the population size and mutation rate
+# POP_SIZE = 100
+# MUT_RATE = 0.1
+
+# # Define the fitness function
+# def fitness(timetable):
+#     day_courses = {day: 0 for day in days}
+#     for course in timetable:
+#         day_courses[course[3]] += 1  # increment course count for the day
+#     return 1 / (max(day_courses.values()) - min(day_courses.values()) + 1)  # higher fitness for more even distribution
+
+# # Define the genetic algorithm
+# def genetic_algorithm():
+#     # Initialize population
+#     population = []
+#     for _ in range(POP_SIZE):
+#         timetable = []
+#         for i in range(len(courses)):
+#             course = courses[i]
+#             venue = random.choice(venues)
+#             day = random.choice(days)
+#             duration = durations[i]
+#             if i < len(time_slots):  # Check if there are enough time slots available
+#                 time_slot_options = time_slots[i]
+#                 time_slot = random.choice(time_slot_options)
+#                 if duration == 2:
+#                     time_slot = time_slot_options[1]  # select the 2-hour time slot
+#             else:
+#                 time_slot = "N/A"  # Set a default value if there are not enough time slots
+#             timetable.append([course, venue, time_slot, day, duration])
+#         population.append(timetable)
+
+#     # Evolve population
+#     for _ in range(100):  # generations
+#         # Evaluate fitness
+#         fitnesses = [fitness(timetable) for timetable in population]
+#         # Select parents
+#         parents = random.choices(population, weights=fitnesses, k=POP_SIZE)
+#         # Crossover
+#         offspring = []
+#         for _ in range(POP_SIZE):
+#             parent1, parent2 = random.sample(parents, 2)
+#             child = parent1[:2] + parent2[2:]  # crossover
+#             offspring.append(child)
+#         # Mutate
+#         for timetable in offspring:
+#             if random.random() < MUT_RATE:
+#                 i = random.randint(0, len(timetable)-1)
+#                 timetable[i][3] = random.choice(days)  # mutate day
+#         # Replace population
+#         population = offspring
+
+#     # Return the fittest timetable
+#     return max(population, key=fitness)
+
+# # Run the genetic algorithm
+# timetable = genetic_algorithm()
+
+# # Print the generated timetable
+# print("Timetable:")
+# for entry in timetable:
+#     print(f"Course: {entry[0]}, Venue: {entry[1]}, Time: {entry[2]}, Day: {entry[3]}, Duration: {entry[4]} hours")
