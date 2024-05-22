@@ -19,8 +19,8 @@ COPY app.py app.py
  
 ENV VIRTUAL_ENV=/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV FLASK_APP=app/app.py
+ENV FLASK_APP=/app.py
  
 EXPOSE 8080
  
-CMD ["gunicorn", "--bind" , ":8080", "--workers", "2", "app:app"]
+CMD ["flask --app app run", "--bind" , ":8080", "--workers", "2", "app:app"]
