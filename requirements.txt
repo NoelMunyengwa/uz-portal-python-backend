@@ -4,11 +4,4 @@
 
 
 Flask==1.1.1
-mpl_toolkits == 0.1.0
-matplotlib == 3.1.1
 numpy == 1.17.2
-pandas == 0.25.1
-requests == 2.22.0
-os == 2.4.1
-random == 2.4.1
-
