@@ -1,8 +1,15 @@
 import random
 from flask import Flask, request, jsonify
 import json
+from flask_mysqldb import MySQL
 app = Flask(__name__)
+app.config['MYSQL_HOST']='127.0.0.1'
+app.config['MYSQL_PORT']=3306
+app.config['MYSQL_USER']='root'
+app.config['MYSQL_PASSWORD']=''
+app.config['MYSQL_DB']='adminPortal'
 
+mysql = MySQL(app)
 #GET dummy data
 @app.route('/get_data', methods=['GET'])
 def get_data():
@@ -118,6 +125,14 @@ def generate_timetable():
     # Run the genetic algorithm
     timetable = genetic_algorithm()
     print("Timetable:" + str(timetable))
+    #loop and insert timetable into database called timetables
+    for entry in timetable:
+        print("Inserting into database")
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO timetables (department,level,course_code, room, time, day, duration, lecturer) VALUES (%s, %s,%s, %s, %s, %s, %s, %s)", (entry[0],entry[0],entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]))
+        mysql.connection.commit()
+        cur.close()
+
 
     return jsonify({"timetable": timetable})
 
