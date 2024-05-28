@@ -24,7 +24,7 @@ def generate_timetable():
     # print("CALLED BY LARAVEL APP")
 
     # Extract the venues, course names, durations, and lecturers from the request data
-    venues = ["Room 1", "Room 2", "Room 3", "Room 4"]
+    venues = ["Room 1", "Room 2", "Room 3", "Room 4","Room 5", "Room 6","Room 7", "Room 8"]
     courses = []
     durations = []
     lecturers = []
@@ -58,12 +58,16 @@ def generate_timetable():
     # venues = ["Room 1", "Room 2", "Room 3", "Room 4"]
     # durations = [1, 2, 1, 2, 1, 2, 1, 2]  # in hours
     # lecturers = ["Lecturer 1", "Lecturer 2", "Lecturer 3", "Lecturer 4"]
-    lecturer_courses = {
-        "Mr Aldrin": ["HCT416"],
-        "Miss Jowa": ["HCT420"],
-        "Mr Munyaradzi": ["HCT402"],
+    lecturer_courses = {}
+    for course in data:
+        lecturer = course["lecturers"]
+        course_name = course["courses"]
+        if lecturer in lecturer_courses:
+            lecturer_courses[lecturer].append(course_name)
+        else:
+            lecturer_courses[lecturer] = [course_name]
        
-    }
+    
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
     # Define the population size and mutation rate
@@ -80,9 +84,11 @@ def generate_timetable():
     # Define the genetic algorithm
     def genetic_algorithm():
         # Initialize population
+        
         population = []
         for _ in range(POP_SIZE):
             timetable = []
+            
             for i in range(len(courses)):
                 course = courses[i]
                 venue = random.choice(venues)
@@ -94,12 +100,14 @@ def generate_timetable():
                 if duration == 2:
                     time_slot = time_slot_options[1]  # select the 2-hour time slot
                 lecturer = random.choice(list(lecturer_courses.keys()))
-                while course not in lecturer_courses[lecturer]:
+                
+                while course not in lecturer_courses[lecturer] :
                     lecturer = random.choice(list(lecturer_courses.keys()))
                 timetable.append([course, venue, time_slot, day, duration, lecturer])
             population.append(timetable)
 
         # Evolve population
+        print("Evolving population")
         for _ in range(100):  # generations
             # Evaluate fitness
             fitnesses = [fitness(timetable) for timetable in population]
@@ -123,6 +131,7 @@ def generate_timetable():
         return max(population, key=fitness)
 
     # Run the genetic algorithm
+    
     timetable = genetic_algorithm()
     print("Timetable:" + str(timetable))
     #Call the Ant colony algorithm
