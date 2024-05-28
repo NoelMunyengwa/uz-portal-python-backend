@@ -74,31 +74,72 @@ def generate_timetable():
         for course in timetable:
             day_courses[course[3]] += 1  # increment course count for the day
         return 1 / (max(day_courses.values()) - min(day_courses.values()) + 1)  # higher fitness for more even distribution
+    
+    # Fetch isCompassWide and isRepeated courses from the database
+    cur = mysql.connection.cursor()
+    isCompassWide = []
+    cur.execute("SELECT course_code FROM timetables WHERE isCampusWide = 1")
+    isCompassWide = [row[0] for row in cur.fetchall()]
+    print("isCompassWide: ", isCompassWide)
+
+    cur.execute("SELECT course_code FROM timetables WHERE isRepeated = 1")
+    isRepeated = [row[0] for row in cur.fetchall()]
+    cur.close()
 
     # Define the genetic algorithm
     def genetic_algorithm():
         # Initialize population
-        
         population = []
         for _ in range(POP_SIZE):
             timetable = []
-            
             for i in range(len(courses)):
                 course = courses[i]
-                venue = random.choice(venues)
-                day = random.choice(days)
-                duration = durations[i]
-                time_slot_index = i % len(time_slots)  # reuse time slots if necessary
-                time_slot_options = time_slots[time_slot_index]
-                time_slot = random.choice(time_slot_options)
-                if duration == 2:
-                    time_slot = time_slot_options[1]  # select the 2-hour time slot
-                lecturer = random.choice(list(lecturer_courses.keys()))
-                
-                while course not in lecturer_courses[lecturer] :
+                if course in isCompassWide or course in isRepeated:
+                    # Use existing day, venue, and time from the database
+                    print("Using existing day, venue, and time from the database")
+                    cur = mysql.connection.cursor()
+                    cur.execute("SELECT day, venue, time,duration, lecturer FROM timetables WHERE course_code = %s", (course,))
+                    row = cur.fetchone()
+                    day, venue, time_slot,duration, lecturer = row
+                else:
+                    venue = random.choice(venues)
+                    day = random.choice(days)
+                    duration = durations[i]
+                    time_slot_index = i % len(time_slots)  # reuse time slots if necessary
+                    time_slot_options = time_slots[time_slot_index]
+                    time_slot = random.choice(time_slot_options)
+                    if duration == 2:
+                        time_slot = time_slot_options[1]  # select the 2-hour time slot
                     lecturer = random.choice(list(lecturer_courses.keys()))
+                    while course not in lecturer_courses[lecturer]:
+                        lecturer = random.choice(list(lecturer_courses.keys()))
                 timetable.append([course, venue, time_slot, day, duration, lecturer])
             population.append(timetable)
+
+    # # Define the genetic algorithm
+    # def genetic_algorithm():
+    #     # Initialize population
+        
+    #     population = []
+    #     for _ in range(POP_SIZE):
+    #         timetable = []
+            
+    #         for i in range(len(courses)):
+    #             course = courses[i]
+    #             venue = random.choice(venues)
+    #             day = random.choice(days)
+    #             duration = durations[i]
+    #             time_slot_index = i % len(time_slots)  # reuse time slots if necessary
+    #             time_slot_options = time_slots[time_slot_index]
+    #             time_slot = random.choice(time_slot_options)
+    #             if duration == 2:
+    #                 time_slot = time_slot_options[1]  # select the 2-hour time slot
+    #             lecturer = random.choice(list(lecturer_courses.keys()))
+                
+    #             while course not in lecturer_courses[lecturer] :
+    #                 lecturer = random.choice(list(lecturer_courses.keys()))
+    #             timetable.append([course, venue, time_slot, day, duration, lecturer])
+    #         population.append(timetable)
 
         # Evolve population
         print("Evolving population")
