@@ -30,8 +30,7 @@ def generate_timetable():
     lecturers = []
     # convert data to a list
     data = json.loads(data)
-    #print data length
-    # print(len(data))
+    print(data)
     # print("looping through data")
     # Extract the courses, durations, and lecturers from the request data
     for course in data:
@@ -40,8 +39,9 @@ def generate_timetable():
         durations.append(int(course["durations"]))
         lecturers.append(course["lecturers"])
 
-    # ... rest of the code ...
-    # app.run()
+    
+
+
 # Define the available time slots
     time_slots = [
         ["8:00-9:00", "8:00-10:00"],
@@ -125,11 +125,12 @@ def generate_timetable():
     # Run the genetic algorithm
     timetable = genetic_algorithm()
     print("Timetable:" + str(timetable))
+    #Call the Ant colony algorithm
     #loop and insert timetable into database called timetables
     for entry in timetable:
         print("Inserting into database")
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO timetables (department,level,course_code, room, time, day, duration, lecturer) VALUES (%s, %s,%s, %s, %s, %s, %s, %s)", (entry[0],entry[0],entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]))
+        cur.execute("INSERT INTO timetables (department,level,course_code, venue, time, day, duration, lecturer) VALUES (%s, %s,%s, %s, %s, %s, %s, %s)", (entry[0],entry[0],entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]))
         mysql.connection.commit()
         cur.close()
 
