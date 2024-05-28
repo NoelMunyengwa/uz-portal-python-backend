@@ -159,7 +159,16 @@ def generate_timetable():
             for timetable in offspring:
                 if random.random() < MUT_RATE:
                     i = random.randint(0, len(timetable)-1)
-                    timetable[i][3] = random.choice(days)  # mutate day
+                    course = timetable[i][0]
+                    for entry in timetable:
+                        if entry[0] in isCompassWide or entry[0] in isRepeated:
+                            continue
+                        entry[3] = random.choice(days)  # mutate day
+            # # Mutate
+            # for timetable in offspring:
+            #     if random.random() < MUT_RATE:
+            #         i = random.randint(0, len(timetable)-1)
+            #         timetable[i][3] = random.choice(days)  # mutate day
             # Replace population
             population = offspring
 
