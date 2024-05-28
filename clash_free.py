@@ -78,11 +78,11 @@ def generate_timetable():
     # Fetch isCompassWide and isRepeated courses from the database
     cur = mysql.connection.cursor()
     isCompassWide = []
-    cur.execute("SELECT course_code FROM timetables WHERE isCampusWide = 1")
+    cur.execute("SELECT course_code FROM timetables WHERE isCampusWide = 'On'")
     isCompassWide = [row[0] for row in cur.fetchall()]
     print("isCompassWide: ", isCompassWide)
 
-    cur.execute("SELECT course_code FROM timetables WHERE isRepeated = 1")
+    cur.execute("SELECT course_code FROM timetables WHERE isRepeated = 'On'")
     isRepeated = [row[0] for row in cur.fetchall()]
     cur.close()
 
@@ -98,9 +98,10 @@ def generate_timetable():
                     # Use existing day, venue, and time from the database
                     print("Using existing day, venue, and time from the database")
                     cur = mysql.connection.cursor()
-                    cur.execute("SELECT day, venue, time,duration, lecturer FROM timetables WHERE course_code = %s", (course,))
+                    cur.execute("SELECT venue, time,day,duration, lecturer FROM timetables WHERE course_code = %s", (course,))
                     row = cur.fetchone()
-                    day, venue, time_slot,duration, lecturer = row
+                    print("Row: ", row)
+                    venue, time_slot,day,duration, lecturer = row
                 else:
                     venue = random.choice(venues)
                     day = random.choice(days)
