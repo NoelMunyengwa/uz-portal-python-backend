@@ -100,6 +100,7 @@ def generate_timetable():
                     cur = mysql.connection.cursor()
                     cur.execute("SELECT venue, time,day,duration, lecturer FROM timetables WHERE course_code = %s", (course,))
                     row = cur.fetchone()
+                    cur.close()
                     print("Row: ", row)
                     venue, time_slot,day,duration, lecturer = row
                 else:
@@ -184,7 +185,13 @@ def generate_timetable():
     for entry in timetable:
         print("Inserting into database")
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO timetables (department,level,course_code, venue, time, day, duration, lecturer) VALUES (%s, %s,%s, %s, %s, %s, %s, %s)", (entry[0],entry[0],entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]))
+        #get department and level from database using the course code in the entry
+        cur.execute("SELECT department, level FROM courses WHERE course_code = %s", (entry[0],))
+        row = cur.fetchone()
+        dep = row[0]
+        levl = row[1]
+
+        cur.execute("INSERT INTO timetables (department,level,course_code, venue, time, day, duration, lecturer) VALUES (%s, %s,%s, %s, %s, %s, %s, %s)", (dep,levl,entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]))
         mysql.connection.commit()
         cur.close()
 
