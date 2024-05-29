@@ -22,7 +22,7 @@ def generate_timetable():
     data = request.get_json()
 
     # Extract the venues, course names, durations, and lecturers from the request data
-    venues = ["Room 1", "Room 2", "Room 3", "Room 4","Room 5", "Room 6","Room 7", "Room 8"]
+    venues = ["SLT500", "SW-Lab", "HW-Lab", "Maths LT","CS Basement", "Room 6","Room 7", "Room 8"]
     courses = []
     durations = []
     lecturers = []
@@ -186,12 +186,13 @@ def generate_timetable():
         print("Inserting into database")
         cur = mysql.connection.cursor()
         #get department and level from database using the course code in the entry
-        cur.execute("SELECT department, level FROM courses WHERE course_code = %s", (entry[0],))
+        cur.execute("SELECT department, level, isCampusWide FROM courses WHERE course_code = %s", (entry[0],))
         row = cur.fetchone()
         dep = row[0]
         levl = row[1]
+        isCampusWide = row[2]
 
-        cur.execute("INSERT INTO timetables (department,level,course_code, venue, time, day, duration, lecturer) VALUES (%s, %s,%s, %s, %s, %s, %s, %s)", (dep,levl,entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]))
+        cur.execute("INSERT INTO timetables (department,level,course_code, venue, time, day, duration, lecturer,isCampusWide) VALUES (%s, %s,%s, %s, %s, %s, %s, %s,%s)", (dep,levl,entry[0], entry[1], entry[2], entry[3], entry[4], entry[5],isCampusWide))
         mysql.connection.commit()
         cur.close()
 
